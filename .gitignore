@@ -1,0 +1,46 @@
+# Workspace produced at runtime by the notebooks.
+# This contains the cloned SARD corpus, curated dataset, and result CSVs.
+# It is regenerated from scratch by re-running the notebooks.
+workspace/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.Python
+build/
+dist/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb-checkpoints
+profile_default/
+ipython_config.py
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# OpenAI / secrets — defensive: never commit any file matching these
+.env
+.env.local
+*.key
+secrets.txt
+api_key*
+
+# Test artefacts
+.pytest_cache/
+.coverage
+htmlcov/

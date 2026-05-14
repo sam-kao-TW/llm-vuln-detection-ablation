@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use this repository or the underlying paper, please cite as below."
+title: "llm-vuln-detection-ablation: Reproduction artefacts for 'Toward Practical LLM-assisted Vulnerability Detection'"
+type: software
+authors:
+  - family-names: Lin
+    given-names: Hsin-Lei
+    affiliation: "Department of Information Management, Chung Yuan Christian University"
+  - family-names: Kao
+    given-names: Hung-En
+    affiliation: "Department of Information Management, Chung Yuan Christian University"
+    email: "(see paper for contact information)"
+  - family-names: Pi
+    given-names: Shih-Ming
+    affiliation: "Department of Information Management, Chung Yuan Christian University"
+  - family-names: Li
+    given-names: Kuo-Chen
+    affiliation: "Department of Information Management, Chung Yuan Christian University"
+repository-code: "https://github.com/<your-handle>/llm-vuln-detection-ablation"
+license: MIT
+license-url: "https://opensource.org/licenses/MIT"
+keywords:
+  - large language models
+  - prompt engineering
+  - vulnerability detection
+  - software security
+  - ablation study
+  - taint analysis
+  - PHP
+  - SQL injection
+  - command injection
+preferred-citation:
+  type: unpublished
+  title: "Toward Practical LLM-assisted Vulnerability Detection: Design Principles and Framework for Web Application Security"
+  authors:
+    - family-names: Lin
+      given-names: Hsin-Lei
+    - family-names: Kao
+      given-names: Hung-En
+    - family-names: Pi
+      given-names: Shih-Ming
+    - family-names: Li
+      given-names: Kuo-Chen
+  year: 2026
+  month: 5
+  notes: "Under review at Journal of Systems and Software."

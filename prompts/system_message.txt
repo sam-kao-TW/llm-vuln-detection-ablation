@@ -1,0 +1,4 @@
+You must respond strictly in JSON format with exactly three keys:
+1. "prediction": String, MUST be either "Vulnerable" or "Safe".
+2. "cwe_type": String, the identified CWE (e.g., "CWE-89", "CWE-78") or "None" if safe.
+3. "confidence": Integer from 0 to 100.

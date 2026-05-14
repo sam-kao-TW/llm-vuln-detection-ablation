@@ -1,0 +1,61 @@
+CWE-79 (XSS) Absence — Audit Evidence
+======================================
+
+Date of audit: 2026-05-07
+Audited by:   Hung-En Kao (corresponding author)
+
+Purpose
+-------
+Section 3.1.3 of the paper states that the curated dataset contains no
+CWE-79 (Cross-Site Scripting) samples, and that the CWE_79_XSS folder under
+the curation output is empty by design. This file records the audit
+evidence supporting that statement.
+
+Audit procedure
+---------------
+The XSS folder is one of four candidate output folders created during dataset
+curation:
+  - CWE_89_SQLi      (SQL Injection;       100 samples retained)
+  - CWE_78_CmdInj    (OS Command Injection; 100 samples retained)
+  - CWE_79_XSS       (Cross-Site Scripting; 0 samples retained)
+  - Safe_Code        (Safe negative controls; 34 samples retained)
+
+The folder is created by the curation pipeline but no samples are written to
+it because the SARD CWE-79 stratum contains no candidate samples suitable for
+the source-to-sink evaluation paradigm used in this study (XSS sinks are
+output-rendering contexts rather than the query-execution sinks targeted by
+Variants C and E).
+
+Audit command and output
+------------------------
+The following commands were executed in the project's Google Drive workspace
+on the date above. The output is reproduced verbatim.
+
+    >>> import os
+    >>> xss_dir = '/content/drive/MyDrive/LLM_Security_Paper/final_dataset_300/CWE_79_XSS'
+    >>> print(f'Path: {xss_dir}')
+    Path: /content/drive/MyDrive/LLM_Security_Paper/final_dataset_300/CWE_79_XSS
+
+    >>> print(f'Exists: {os.path.exists(xss_dir)}')
+    Exists: True
+
+    >>> contents = os.listdir(xss_dir)
+    >>> print(f'Contents: {contents}')
+    Contents: []
+
+    >>> print(f'File count: {len(contents)}')
+    File count: 0
+
+Interpretation
+--------------
+The folder exists (Exists: True) but is empty (Contents: [], File count: 0).
+This is consistent with the curation pipeline running to completion without
+locating any CWE-79 candidate suitable for inclusion. No XSS samples were
+manually deleted from the folder — the folder has been empty since the
+pipeline was first run.
+
+Cross-references
+----------------
+Section 3.1.3 of the paper explains why XSS is out of scope.
+Section 5.4 (Threats to Validity) discusses XSS-class generalization as a
+priority for future work.

@@ -1,0 +1,1 @@
+Analyze this PHP code. Focus specifically on identifying data flow from untrusted sources (taint analysis) leading to SQL Injection or OS Command Injection. Return JSON.
