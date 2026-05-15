@@ -16,8 +16,7 @@ This repository contains the dataset curation, experimental, and analysis pipeli
 ```
 llm-vuln-detection-ablation/
 ├── README.md                        This file.
-├── LICENSE-CODE                     MIT License (covers all code).
-├── LICENSE-DATA                     CC BY 4.0 (covers prompts, file lists, results CSVs).
+├── LICENSE                          Dual license: MIT (code) AND CC BY 4.0 (data).
 ├── CITATION.cff                     Machine-readable citation metadata.
 ├── requirements.txt                 Python dependencies.
 ├── .gitignore                       Standard Python and Jupyter ignores.
@@ -145,8 +144,10 @@ After running notebook `05`, the printed numbers should match the paper's Table 
 
 ## Licensing
 
-- **Code** (`notebooks/`, any `.py` files): released under the MIT License (`LICENSE-CODE`).
-- **Data, prompts, file lists, and result CSVs** (`prompts/`, `data/`, any output `.csv` produced by these notebooks): released under the Creative Commons Attribution 4.0 International License, CC BY 4.0 (`LICENSE-DATA`).
+- **Code** (`notebooks/`, any `.py` files): released under the MIT License.
+- **Data, prompts, file lists, and result CSVs** (`prompts/`, `data/`, any output `.csv` produced by these notebooks): released under the Creative Commons Attribution 4.0 International License, CC BY 4.0.
+
+Both licenses are provided in the single `LICENSE` file at the repository root, with an SPDX header (`SPDX-License-Identifier: MIT AND CC-BY-4.0`) and explicit per-section coverage.
 
 The PHP source samples themselves are **not** redistributed by this repository. They are obtained at runtime by cloning the public NIST SARD PHP Vulnerability Test Suite under its original license. See https://github.com/stivalet/PHP-Vulnerability-test-suite for the source corpus.
 
