@@ -8,7 +8,7 @@ authors:
     affiliation: "Department of Information Management, Chung Yuan Christian University"
   - family-names: Kao
     given-names: Hung-En
-    affiliation: "Department of Information Management, Chung Yuan Christian University"
+    affiliation: "Ph.D. Program in Business, College of Business, Chung Yuan Christian University"
     email: "(see paper for contact information)"
   - family-names: Pi
     given-names: Shih-Ming
@@ -16,7 +16,7 @@ authors:
   - family-names: Li
     given-names: Kuo-Chen
     affiliation: "Department of Information Management, Chung Yuan Christian University"
-repository-code: "https://github.com/<your-handle>/llm-vuln-detection-ablation"
+repository-code: "https://github.com/sam-kao-TW/llm-vuln-detection-ablation"
 license: MIT
 license-url: "https://opensource.org/licenses/MIT"
 keywords:
@@ -31,7 +31,7 @@ keywords:
   - command injection
 preferred-citation:
   type: unpublished
-  title: "Toward Practical LLM-assisted Vulnerability Detection: Design Principles and Framework for Web Application Security"
+  title: "Toward Practical LLM-assisted Vulnerability Detection: A Specificity-Aware Ablation Study with Hint-Leakage Controls"
   authors:
     - family-names: Lin
       given-names: Hsin-Lei
