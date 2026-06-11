@@ -3,9 +3,10 @@
 Reproduction artefacts for the paper:
 
 > **Toward Practical LLM-assisted Vulnerability Detection: A Specificity-Aware Ablation Study with Hint-Leakage Controls**
-> Hsin-Lei Lin, Hung-En Kao, Shih-Ming Pi, Kuo-Chen Li
-> Department of Information Management, Chung Yuan Christian University
-> *Under review at Journal of Systems and Software (May 2026).*
+> Hsin-Lei Lin¹, Hung-En Kao², Shih-Ming Pi¹, Kuo-Chen Li¹
+> ¹ Department of Information Management, College of Business, Chung Yuan Christian University, Taoyuan, Taiwan
+> ² Ph.D. Program in Business, College of Business, Chung Yuan Christian University, Taoyuan, Taiwan
+> *Manuscript under review (2026).*
 
 This repository contains the dataset curation, experimental, and analysis pipelines that produce every quantitative result reported in the paper, including all metric tables, figure data, and the qualitative case study list.
 
@@ -21,14 +22,17 @@ llm-vuln-detection-ablation/
 ├── requirements.txt                 Python dependencies.
 ├── .gitignore                       Standard Python and Jupyter ignores.
 │
-├── notebooks/                       Seven Jupyter notebooks. Run in order.
+├── notebooks/                       Ten Jupyter notebooks. Run 01-07 in order; 08-10 are the CWE-98 boundary-condition study.
 │   ├── 01_dataset_curation.ipynb        Curate 234 PHP samples from NIST SARD.
 │   ├── 02_run_ablation_hinted.ipynb     RQ1: 5 HINTED prompt variants on GPT-4o-mini.
 │   ├── 03_run_ablation_clean.ipynb      RQ2: Variants C and E re-run with category-agnostic prompts.
 │   ├── 04_run_cross_generation.ipynb    RQ3: Variant C HINTED on GPT-3.5-turbo, 100-sample subset.
 │   ├── 05_metrics_and_figures.ipynb     Compute all paper tables and figure data from the result CSVs.
 │   ├── 06_run_frontier_validation.ipynb RQ4: run Variants A and E on frontier model GPT-5.5 (234 samples).
-│   └── 07_frontier_stats.ipynb          RQ4: self-contained; reproduces Table 3 from the GPT-5.5 CSV.
+│   ├── 07_frontier_stats.ipynb          RQ4: self-contained; reproduces Table 3 from the GPT-5.5 CSV.
+│   ├── 08_cwe95_generalization.ipynb    Exploratory CWE-95 probe (floor effect; not used in final analysis).
+│   ├── 09_cwe98_generalization_gpt55.ipynb  CWE-98 boundary condition on GPT-5.5 (ceiling effect).
+│   └── 10_cwe98_floor_gpt4omini.ipynb   CWE-98 boundary condition on GPT-4o-mini (floor effect).
 │
 ├── prompts/                         Eight prompt files (one per variant + system message).
 │   ├── system_message.txt
@@ -43,7 +47,10 @@ llm-vuln-detection-ablation/
 ├── data/                            Canonical file lists and frontier-validation results.
 │   ├── file_list_234.txt                234 samples used in RQ1 and RQ2.
 │   ├── file_list_100_stratified.txt     100 samples used in RQ3 (subset of file_list_234.txt).
-│   └── rq4_frontier_gpt55.csv           Committed copy of the RQ4 GPT-5.5 predictions (234 rows).
+│   ├── rq4_frontier_gpt55.csv           Committed copy of the RQ4 GPT-5.5 predictions (234 rows).
+│   ├── file_list_cwe98.txt              144-sample CWE-98 boundary-condition test set (96 vuln + 48 safe).
+│   ├── cwe98_generalization_gpt55.csv   CWE-98 per-sample predictions, GPT-5.5, four conditions.
+│   └── cwe98_floor_gpt4omini.csv        CWE-98 per-sample predictions, GPT-4o-mini, four conditions.
 │
 ├── docs/                            Supplementary documentation.
 │   └── cwe79_absence_evidence.txt       Audit log confirming the empty CWE-79 (XSS) folder
@@ -149,6 +156,39 @@ To test whether the Instruction Overload effect is specific to limited-capacity 
 
 ---
 
+## CWE-98 Boundary-Condition Experiment (File Inclusion)
+
+To test whether the prompt-structural effects observed on the primary benchmark (CWE-78 / CWE-89) generalise across a third, mechanistically distinct vulnerability class **and** across model capability, we constructed an independent CWE-98 (PHP File Inclusion) test set and evaluated four prompt conditions on two models spanning the capability range. This corresponds to **Sections 4.6 and 5.4** of the paper.
+
+### Test set
+
+- **144 samples**: 96 vulnerable (`no_sanitizing` variants, stratified across 16 input sources) + 48 safe (stratified by source). The larger safe stratum, relative to the primary benchmark, gives a more robust estimate of Specificity.
+- Sample identities are published in `data/file_list_cwe98.txt` (paths relative to the CWE-98 dataset root, mirroring the SARD filename convention). As with the primary benchmark, the underlying `.php` files are drawn from the NIST SARD PHP Vulnerability Test Suite and are **not** redistributed here.
+
+### Conditions and models
+
+Four conditions — Baseline (A), Patterns-CLEAN (C), Full-CLEAN (E), and a Full-HINTED variant naming only CWE-98 — were each run on:
+
+- **GPT-4o-mini** (`temperature = 0.1`) — `notebooks/10_cwe98_floor_gpt4omini.ipynb`, output `data/cwe98_floor_gpt4omini.csv`.
+- **GPT-5.5** (`gpt-5.5-2026-04-23`, default temperature; the API does not accept a custom value) — `notebooks/09_cwe98_generalization_gpt55.ipynb`, output `data/cwe98_generalization_gpt55.csv`.
+
+The CWE-98 prompts are defined inline within notebooks 09 and 10 (the HINTED condition names only CWE-98), so these notebooks are self-contained with respect to prompt definitions.
+
+### Key result: a capability-difficulty boundary condition
+
+| Model | Regime | Behaviour |
+|---|---|---|
+| GPT-4o-mini | **Floor effect** | Over-flagging saturates: the Baseline judges all 144 samples Vulnerable; only 4/144 rows differ across the four conditions, so prompt-structural effects are unmeasurable. |
+| GPT-5.5 | **Ceiling effect** | Near-perfect even when unstructured: the Baseline already attains F1 around 0.98; only 12/144 rows differ, and the Instruction Overload / hint-leakage contrasts are directionally consistent but statistically negligible. |
+
+The prompt-structural effects of the primary study are therefore **not universal** but are interaction effects between model capability and task difficulty, observable only in an intermediate regime where the model is strained but not saturated.
+
+### Exploratory note: CWE-95
+
+`notebooks/08_cwe95_generalization.ipynb` documents an earlier attempt to use CWE-95 (Eval Injection) as the third class. It is retained for transparency: GPT-4o-mini exhibited a total floor effect on CWE-95 (every sample judged Vulnerable under all conditions), so CWE-95 could not serve as a measurable generalisation test, and CWE-98 was selected instead.
+
+---
+
 ## Notes for reviewers
 
 - **Sample selection.** The 234-sample composition is recorded in `data/file_list_234.txt`, which is the canonical specification. The curation pipeline in `01_dataset_curation.ipynb` extracts candidate samples by filename pattern from the public SARD corpus and intersects them with this list. The list and the pipeline together guarantee that any reviewer reproduces the same 234 samples used in the paper.
@@ -179,7 +219,7 @@ If you use this repository or the underlying paper in your work, please cite:
 Hsin-Lei Lin, Hung-En Kao, Shih-Ming Pi, Kuo-Chen Li (2026).
 "Toward Practical LLM-assisted Vulnerability Detection: A Specificity-Aware
 Ablation Study with Hint-Leakage Controls."
-Under review at Journal of Systems and Software, May 2026.
+Manuscript under review, 2026.
 ```
 
 A machine-readable citation is provided in `CITATION.cff`.
