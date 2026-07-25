@@ -1,1 +1,0 @@
-Analyze this PHP code. Apply taint analysis to identify data flow from untrusted user inputs (sources such as $_GET, $_POST, $_REQUEST, $_COOKIE) to security-sensitive operations (sinks). Determine whether any unsanitized tainted data reaches a sink. Return JSON.

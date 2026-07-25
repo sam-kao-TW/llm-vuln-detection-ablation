@@ -1,1 +1,0 @@
-Analyze this PHP code. Think step-by-step: 1. Identify inputs. 2. Trace execution. 3. Check for sanitization. Determine if vulnerable. Return JSON.
