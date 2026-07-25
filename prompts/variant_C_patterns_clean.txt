@@ -1,0 +1,1 @@
+Analyze the following PHP code and determine whether it contains a security vulnerability. Apply taint analysis: trace data flow from untrusted user inputs (sources such as $_GET, $_POST, $_REQUEST, $_COOKIE, $_SESSION) to security-sensitive operations (sinks), and determine whether any unsanitized tainted data reaches a sink. Return JSON.

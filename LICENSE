@@ -1,30 +1,13 @@
-SPDX-License-Identifier: MIT AND CC-BY-4.0
+This replication package is released under two licences, by file type.
 
-================================================================================
-DUAL-LICENSE SUMMARY
-================================================================================
-
-This repository is dual-licensed:
-
-  - Source code (notebooks/*.ipynb and any .py files): MIT License
-  - Non-code artefacts (prompts/, data/, and result CSV files produced by
-    the notebooks): Creative Commons Attribution 4.0 International (CC BY 4.0)
-
-The PHP source samples downloaded at runtime by 01_dataset_curation.ipynb are
-NOT covered by this LICENSE. They are obtained from the NIST SARD PHP
-Vulnerability Test Suite and remain under that project's original license.
-See https://github.com/stivalet/PHP-Vulnerability-test-suite.
-
-See README.md for the file-level mapping between license sections.
-
-================================================================================
-SECTION 1: MIT License (covers source code in notebooks/ and any .py files)
-================================================================================
-
-MIT License
+================================================================
+CODE — MIT License
+================================================================
+Applies to: vulnbench.py, all Jupyter notebooks (*.ipynb),
+make_figures.py, make_drawio.py, and the draw.io figure sources
+(*.drawio).
 
 Copyright (c) 2026 Hsin-Lei Lin, Hung-En Kao, Shih-Ming Pi, Kuo-Chen Li
-Department of Information Management, Chung Yuan Christian University
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,52 +27,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-================================================================================
-SECTION 2: Creative Commons Attribution 4.0 International (CC BY 4.0)
-           (covers prompts/, data/, and result CSV files)
-================================================================================
-
-Creative Commons Attribution 4.0 International License (CC BY 4.0)
+================================================================
+DATA, PROMPTS AND RESULTS — Creative Commons Attribution 4.0 International
+(CC BY 4.0)
+================================================================
+Applies to: benchmark_360_metadata.csv, file_list_360.txt, all result CSV
+files (main_4omini.csv, crossgen_gpt35.csv, frontier_gpt55.csv,
+stability_merged_3runs.csv), all analysis tables (TABLE1_*.csv through
+TABLE5_*.csv), the prompt definitions contained in vulnbench.py, and the
+rendered figure images (*.png).
 
 Copyright (c) 2026 Hsin-Lei Lin, Hung-En Kao, Shih-Ming Pi, Kuo-Chen Li
-Department of Information Management, Chung Yuan Christian University
 
-This section applies to the following non-code artefacts in this repository:
-  - prompts/                     (all .txt files)
-  - data/                        (all .txt file lists)
-  - workspace/results/           (all .csv files produced by the notebooks)
+This work is licensed under the Creative Commons Attribution 4.0 International
+License. You are free to share and adapt the material for any purpose, even
+commercially, provided you give appropriate credit. To view a copy of this
+licence, visit:
 
-You are free to:
-  - Share — copy and redistribute the material in any medium or format
-  - Adapt — remix, transform, and build upon the material for any purpose,
-    even commercially.
+    https://creativecommons.org/licenses/by/4.0/
 
-The licensor cannot revoke these freedoms as long as you follow the license
-terms.
-
-Under the following terms:
-  - Attribution — You must give appropriate credit, provide a link to the
-    license, and indicate if changes were made. You may do so in any
-    reasonable manner, but not in any way that suggests the licensor endorses
-    you or your use.
-
-No additional restrictions — You may not apply legal terms or technological
-measures that legally restrict others from doing anything the license permits.
-
-Notices:
-  - You do not have to comply with the license for elements of the material in
-    the public domain or where your use is permitted by an applicable exception
-    or limitation.
-  - No warranties are given. The license may not give you all of the
-    permissions necessary for your intended use. For example, other rights
-    such as publicity, privacy, or moral rights may limit how you use the
-    material.
-
-The full legal text of CC BY 4.0 is available at:
-https://creativecommons.org/licenses/by/4.0/legalcode
-
-Suggested attribution:
-  "Prompts and result data from Lin, Kao, Pi, and Li (2026), 'Toward Practical
-  LLM-assisted Vulnerability Detection,' available at
-  https://github.com/sam-kao-TW/llm-vuln-detection-ablation
-  (CC BY 4.0)."
+================================================================
+Note
+================================================================
+The benchmark is derived from the NIST Software Assurance Reference Dataset
+(SARD) PHP test suite, which is in the public domain as a work of the U.S.
+federal government. The CC BY 4.0 licence above applies to the curation,
+metadata, labelling, prompts and results contributed by this work, not to the
+underlying SARD source files.

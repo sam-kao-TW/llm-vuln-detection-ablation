@@ -1,0 +1,5 @@
+# HINTED form (category-naming). The class clause below shows CWE-78 as an example;
+# in the experiments the clause names the sample's own CWE class (CWE-78, CWE-89, or CWE-98).
+# HINTED = CLEAN + one identical category-naming clause at a fixed position; nothing else differs.
+
+Analyze the following PHP code and determine whether it contains a security vulnerability. Apply taint analysis: trace data flow from untrusted user inputs (sources such as $_GET, $_POST, $_REQUEST, $_COOKIE, $_SESSION) to security-sensitive operations (sinks), and determine whether any unsanitized tainted data reaches a sink. The vulnerability class of interest is OS command injection (CWE-78). Return JSON.

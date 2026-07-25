@@ -1,46 +1,50 @@
 cff-version: 1.2.0
-message: "If you use this repository or the underlying paper, please cite as below."
-title: "llm-vuln-detection-ablation: Reproduction artefacts for 'Toward Practical LLM-assisted Vulnerability Detection'"
+message: "If you use this software or dataset, please cite both the paper and this archived release."
+title: "LLM-Assisted PHP Vulnerability Detection — Ablation Study (Replication Package)"
+version: 2.0.0
+date-released: 2026-07-25
+license:
+  - MIT
+  - CC-BY-4.0
+repository-code: "https://github.com/sam-kao-TW/llm-vuln-detection-ablation"
+doi: 10.5281/zenodo.20192267
 type: software
 authors:
   - family-names: Lin
     given-names: Hsin-Lei
-    affiliation: "Department of Information Management, Chung Yuan Christian University"
+    affiliation: "Department of Information Management, Chung Yuan Christian University, Taoyuan City, Taiwan"
   - family-names: Kao
     given-names: Hung-En
-    affiliation: "Ph.D. Program in Business, College of Business, Chung Yuan Christian University"
-    email: "(see paper for contact information)"
+    orcid: "https://orcid.org/0009-0008-7371-1408"
+    affiliation: "Ph.D. Program in Business, College of Business, Chung Yuan Christian University, Taoyuan City, Taiwan"
+    email: sam.kao@cycu.org.tw
   - family-names: Pi
     given-names: Shih-Ming
-    affiliation: "Department of Information Management, Chung Yuan Christian University"
+    orcid: "https://orcid.org/0000-0001-9074-9303"
+    affiliation: "Department of Information Management, Chung Yuan Christian University, Taoyuan City, Taiwan"
   - family-names: Li
     given-names: Kuo-Chen
-    affiliation: "Department of Information Management, Chung Yuan Christian University"
-repository-code: "https://github.com/sam-kao-TW/llm-vuln-detection-ablation"
-license: MIT
-license-url: "https://opensource.org/licenses/MIT"
-keywords:
-  - large language models
-  - prompt engineering
-  - vulnerability detection
-  - software security
-  - ablation study
-  - taint analysis
-  - PHP
-  - SQL injection
-  - command injection
+    affiliation: "Department of Information Management, Chung Yuan Christian University, Taoyuan City, Taiwan"
 preferred-citation:
-  type: unpublished
-  title: "Toward Practical LLM-assisted Vulnerability Detection: A Specificity-Aware Ablation Study with Hint-Leakage Controls"
+  type: article
+  title: "Capability Thresholds and Sanitisation Blind Spots in LLM-Assisted Vulnerability Detection: A Factorial Prompt Study on a Reconstructed PHP Benchmark"
   authors:
     - family-names: Lin
       given-names: Hsin-Lei
     - family-names: Kao
       given-names: Hung-En
+      orcid: "https://orcid.org/0009-0008-7371-1408"
     - family-names: Pi
       given-names: Shih-Ming
+      orcid: "https://orcid.org/0000-0001-9074-9303"
     - family-names: Li
       given-names: Kuo-Chen
   year: 2026
-  month: 5
-  notes: "Manuscript under review (2026)."
+keywords:
+  - benchmark validity
+  - capability threshold
+  - large language models
+  - prompt engineering
+  - software security
+  - static analysis
+  - vulnerability detection

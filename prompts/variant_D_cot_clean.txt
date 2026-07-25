@@ -1,0 +1,1 @@
+Analyze the following PHP code and determine whether it contains a security vulnerability. Think step by step: first identify the untrusted inputs, then trace how they propagate, then examine any transformations applied to them, and finally decide whether the code is vulnerable. Return JSON.

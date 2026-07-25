@@ -1,0 +1,12 @@
+TrueLabel,Mechanism,n,A_correct,E_correct,A_rate,E_rate
+Safe,Whitelist,19,18,18,0.947,0.947
+Safe,Type coercion,86,81,80,0.942,0.93
+Safe,Regex validation,19,14,16,0.737,0.842
+Safe,Regex replacement,16,5,9,0.312,0.562
+Safe,HTML escaping,13,3,3,0.231,0.231
+Safe,Quote escaping,23,3,5,0.13,0.217
+Vulnerable,None,29,29,28,1.0,0.966
+Vulnerable,Quote escaping,10,10,10,1.0,1.0
+Vulnerable,Regex validation,28,28,28,1.0,1.0
+Vulnerable,Special-char filter,56,54,50,0.964,0.893
+Vulnerable,Email filter,57,41,28,0.719,0.491
