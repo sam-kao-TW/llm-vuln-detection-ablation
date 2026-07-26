@@ -209,7 +209,7 @@ def figure2():
     c.append(text(X0 + 230, ly - 2, 200, 18, 'Escaping or filtering', 10, 'left'))
     c.append(text(X0 - 210, ly + 26, 640, 34,
                   'Aggregated: 94.3% for type-level mechanisms against 21.2% for '
-                  'escaping\n(Fisher exact test, odds ratio 29.3, p = 8.3e-18)',
+                  'escaping\n(Fisher exact test, odds ratio 61.5, p = 3.5 × 10⁻²¹)',
                   10, 'left', color='#666666'))
 
     (OUT / 'Figure2_sanitisation_mechanism.drawio').write_text(
