@@ -3,6 +3,7 @@
 Output: 600-dpi PNG (for the Word manuscript) and PDF (for archival).
 Sizing follows IEEE Access: 3.5 in single column, 7.16 in double column.
 """
+import os
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -10,9 +11,14 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-OUT = Path('/mnt/user-data/outputs/figures')
+# Paths default to the repository layout, so that a fresh clone runs with
+#     python figures/make_figures.py
+# Set REPRO_DATA / REPRO_FIGS to run against another location, for instance a
+# Google Drive working directory in Colab.
+_HERE = Path(__file__).resolve().parent
+OUT = Path(os.environ.get('REPRO_FIGS', _HERE))
+SRC = Path(os.environ.get('REPRO_DATA', _HERE.parent / 'data'))
 OUT.mkdir(exist_ok=True, parents=True)
-SRC = Path('/mnt/user-data/outputs/revision')
 
 plt.rcParams.update({
     'font.family': 'serif',
@@ -62,20 +68,15 @@ def figure1():
         ax1.bar(xs + (k - 1) * w, vals, w, label=lab, color=col,
                 edgecolor='black', linewidth=0.4)
     ax1.set_xticks(xs)
-    ax1.set_xticklabels([c.replace('_clean', '\nneutral').replace('_hinted', '\nnaming')
-                         for c in conds], fontsize=6.5)
+    ax1.set_xticklabels([c.replace('_clean', ' neutral').replace('_hinted', ' naming')
+                         for c in conds], fontsize=6.5, rotation=45, ha='right')
+    ax1.tick_params(axis='x', pad=1)
     ax1.set_ylabel('Specificity')
     ax1.set_ylim(0, 1.0)
     ax1.axhline(0.5, color='black', lw=0.5, ls=':', alpha=0.6)
     ax1.grid(axis='y', alpha=0.3)
     ax1.set_axisbelow(True)
-    ax1.legend(frameon=False, loc='upper left', ncol=1)
     ax1.set_title('(a)  Specificity by prompt condition', loc='left')
-    # mark the conditions GPT-5.5 was not run on
-    for i, c in enumerate(conds):
-        if c not in ('A_clean', 'E_clean'):
-            ax1.text(i + w, 0.02, 'n/e', ha='center', fontsize=5.6,
-                     color=ORANGE, rotation=90, va='bottom')
 
     # -- right: F1 vs MCC ------------------------------------------------
     for m, lab, col, mk in zip(order, labels, [GREY, BLUE, ORANGE], ['o', 's', '^']):
@@ -89,6 +90,8 @@ def figure1():
     ax2.set_ylim(-0.15, 0.72)
     ax2.grid(alpha=0.3)
     ax2.set_axisbelow(True)
+    ax2.legend(frameon=False, loc='lower right', fontsize=7,
+               handletextpad=0.4, borderaxespad=0.6)
     ax2.set_title('(b)  F1 conceals discrimination', loc='left')
     ax2.annotate('constant-classifier F1',
                  xy=(0.667, 0.02), xytext=(0.70, 0.22),
@@ -103,86 +106,119 @@ def figure1():
 # ---------------------------------------------------------------- Figure 2
 def figure2():
     """Sanitisation mechanism: type-level safety versus escaping."""
-    t = pd.read_csv(SRC / 'TABLE4_gpt55_by_sanitizer_mechanism.csv')
-    s = t[t.TrueLabel == 'Safe'].sort_values('A_rate', ascending=True)
+    t = pd.read_csv(SRC / 'TABLE4_gpt55_by_sanitizer_mechanism.csv',
+                    keep_default_na=False, na_values=[''])
+    s = t[(t.TrueLabel == 'Safe') & (t.Mechanism != 'No sanitiser')]
+    s = s.sort_values('A_clean_rate', ascending=True)
 
     fig, ax = plt.subplots(figsize=(3.5, 2.6))
     y = np.arange(len(s))
-    typeish = s.Mechanism.isin(['Type coercion', 'Whitelist'])
-    cols = [GREEN if v else ORANGE for v in typeish]
+    TYPE_LEVEL = ['Type coercion', 'Whitelist']
+    ESCAPING = ['Regex replacement', 'HTML escaping', 'Quote escaping']
+    cols = [GREEN if m in TYPE_LEVEL else ORANGE if m in ESCAPING else GREY
+            for m in s.Mechanism]
 
-    ax.barh(y, s.A_rate, 0.62, color=cols, edgecolor='black', linewidth=0.4)
-    for i, (r, n) in enumerate(zip(s.A_rate, s.n)):
-        ax.text(r + 0.02, i, f'{r:.2f}  (n={n})', va='center', fontsize=6.6)
+    ax.barh(y, s.A_clean_rate, 0.62, color=cols, edgecolor='black', linewidth=0.4)
+    for i, (r, n) in enumerate(zip(s.A_clean_rate, s.n)):
+        ax.text(r + 0.02, i, f'{r:.2f}  (n={n})', va='center', fontsize=6.2)
 
     ax.set_yticks(y)
     ax.set_yticklabels(s.Mechanism)
     ax.set_xlabel('Proportion correctly identified as safe')
-    ax.set_xlim(0, 1.18)
+    ax.set_xlim(0, 1.52)
     ax.grid(axis='x', alpha=0.3)
     ax.set_axisbelow(True)
 
     h = [plt.Rectangle((0, 0), 1, 1, fc=GREEN, ec='black', lw=0.4),
-         plt.Rectangle((0, 0), 1, 1, fc=ORANGE, ec='black', lw=0.4)]
-    ax.legend(h, ['Type-level guarantee', 'Escaping / filtering'],
-              frameon=False, loc='lower right', fontsize=7)
+         plt.Rectangle((0, 0), 1, 1, fc=ORANGE, ec='black', lw=0.4),
+         plt.Rectangle((0, 0), 1, 1, fc=GREY, ec='black', lw=0.4)]
+    ax.legend(h, ['Type-level guarantee', 'Escaping / filtering',
+                  'Neither group'],
+              frameon=False, fontsize=6.5, loc='upper center',
+              bbox_to_anchor=(0.5, -0.20), ncol=3, borderaxespad=0,
+              handlelength=1.1, columnspacing=1.0)
     fig.tight_layout()
     save(fig, 'Figure2_sanitisation_mechanism')
 
 
 # ---------------------------------------------------------------- Figure 3
 def figure3():
-    """The trade-off: Baseline versus Full Framework on GPT-5.5."""
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.16, 2.5),
+    """Component attribution and the cost of category naming, on GPT-5.5."""
+    t3 = pd.read_csv(SRC / 'TABLE3_component_attribution.csv')
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.16, 2.6),
                                    gridspec_kw={'width_ratios': [1, 1.15]})
 
-    # -- left: correct counts by stratum ---------------------------------
-    strata = ['Vulnerable\n(n = 180)', 'Safe\n(n = 180)']
-    A = [162, 126]
-    E = [144, 133]
-    xs = np.arange(2)
+    # -- left: each component against the shared baseline, vulnerable stratum
+    comps = [('A_clean vs B_clean', 'Persona'),
+             ('A_clean vs C_clean', 'Taint\ninstruction'),
+             ('A_clean vs D_clean', 'Chain of\nthought'),
+             ('A_clean vs E_clean', 'All three')]
+    v = t3[t3.Stratum == 'Vulnerable'].set_index('Contrast')
+
+    lost   = [int(v.loc[c].A_only) for c, _ in comps]
+    gained = [int(v.loc[c].B_only) for c, _ in comps]
+    sig    = [bool(v.loc[c].sig_holm) for c, _ in comps]
+
+    xs = np.arange(len(comps))
     w = 0.34
-    b1 = ax1.bar(xs - w / 2, A, w, label='Baseline (A)', color=BLUE,
-                 edgecolor='black', linewidth=0.4)
-    b2 = ax1.bar(xs + w / 2, E, w, label='Full Framework (E)', color=ORANGE,
-                 edgecolor='black', linewidth=0.4)
+    b1 = ax1.bar(xs - w / 2, lost, w, color=BLUE, edgecolor='black',
+                 linewidth=0.4, label='Detections lost')
+    b2 = ax1.bar(xs + w / 2, gained, w, color=ORANGE, edgecolor='black',
+                 linewidth=0.4, label='Detections gained')
     for b in list(b1) + list(b2):
-        ax1.text(b.get_x() + b.get_width() / 2, b.get_height() + 2,
+        ax1.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.5,
                  f'{int(b.get_height())}', ha='center', fontsize=6.8)
+    for i, ok in enumerate(sig):
+        if ok:
+            ax1.text(i, max(lost[i], gained[i]) + 3.2, '*', ha='center',
+                     fontsize=11, color='black')
+
     ax1.set_xticks(xs)
-    ax1.set_xticklabels(strata)
-    ax1.set_ylabel('Correct predictions')
-    ax1.set_ylim(0, 195)
+    ax1.set_xticklabels([lab for _, lab in comps], fontsize=6.8)
+    ax1.set_ylabel('Discordant samples')
+    ax1.set_ylim(0, 37)
     ax1.grid(axis='y', alpha=0.3)
     ax1.set_axisbelow(True)
-    ax1.legend(frameon=False, loc='lower right', fontsize=7)
-    ax1.set_title('(a)  Accuracy by stratum', loc='left')
-    ax1.text(0, 173, 'p = 0.0003', ha='center', fontsize=6.8, color=GREY)
-    ax1.text(1, 147, 'p = 0.065', ha='center', fontsize=6.8, color=GREY)
+    ax1.legend(frameon=True, loc='upper left', fontsize=6.6,
+               handlelength=1.2, borderaxespad=0.3, framealpha=0.95,
+               edgecolor='none')
+    ax1.set_title('(a)  Each component against the baseline\n'
+                  '(vulnerable samples)', loc='left', fontsize=7.6)
 
-    # -- right: discordant counts ----------------------------------------
-    cats = ['Vulnerable\nsamples', 'Safe\nsamples', 'Verdict\nshift']
-    only_a = [21, 2, 30]
-    only_e = [3, 9, 5]
-    xs = np.arange(3)
-    b1 = ax2.bar(xs - w / 2, only_a, w, color=BLUE, edgecolor='black',
-                 linewidth=0.4, label='Favours Baseline')
-    b2 = ax2.bar(xs + w / 2, only_e, w, color=ORANGE, edgecolor='black',
-                 linewidth=0.4, label='Favours Full Framework')
+    # -- right: category naming within every structural variant ------------
+    pairs = [(f'{v_}_clean vs {v_}_hinted', v_) for v_ in 'ABCDE']
+    vv = t3[t3.Stratum == 'Vulnerable'].set_index('Contrast')
+    ss = t3[t3.Stratum == 'Safe'].set_index('Contrast')
+
+    v_lost = [int(vv.loc[c].A_only) for c, _ in pairs]
+    s_gain = [int(ss.loc[c].B_only) for c, _ in pairs]
+
+    xs = np.arange(len(pairs))
+    b1 = ax2.bar(xs - w / 2, v_lost, w, color=BLUE, edgecolor='black',
+                 linewidth=0.4, label='Vulnerabilities missed')
+    b2 = ax2.bar(xs + w / 2, s_gain, w, color=ORANGE, edgecolor='black',
+                 linewidth=0.4, label='False positives avoided')
     for b in list(b1) + list(b2):
-        ax2.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.6,
+        ax2.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.8,
                  f'{int(b.get_height())}', ha='center', fontsize=6.8)
+
     ax2.set_xticks(xs)
-    ax2.set_xticklabels(cats)
+    ax2.set_xticklabels([f'{lab}' for _, lab in pairs])
+    ax2.set_xlabel('Structural variant')
     ax2.set_ylabel('Discordant samples')
-    ax2.set_ylim(0, 36)
+    ax2.set_ylim(0, 92)
     ax2.grid(axis='y', alpha=0.3)
     ax2.set_axisbelow(True)
-    ax2.legend(frameon=False, loc='upper left', fontsize=7)
-    ax2.set_title('(b)  Discordant pairs', loc='left')
+    ax2.legend(frameon=True, loc='upper right', fontsize=6.6,
+               handlelength=1.2, borderaxespad=0.3, framealpha=0.95,
+               edgecolor='none')
+    ax2.set_title('(b)  Cost of naming the category\n'
+                  '(every contrast significant after Holm)',
+                  loc='left', fontsize=7.6)
 
     fig.tight_layout(w_pad=1.8)
-    save(fig, 'Figure3_tradeoff')
+    save(fig, 'Figure3_component_attribution')
 
 
 if __name__ == '__main__':

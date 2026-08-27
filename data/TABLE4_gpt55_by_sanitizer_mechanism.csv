@@ -1,12 +1,13 @@
-TrueLabel,Mechanism,n,A_correct,E_correct,A_rate,E_rate
-Safe,Whitelist,19,18,18,0.947,0.947
-Safe,Type coercion,86,81,80,0.942,0.93
-Safe,Regex validation,19,14,16,0.737,0.842
-Safe,Regex replacement,16,5,9,0.312,0.562
-Safe,HTML escaping,13,3,3,0.231,0.231
-Safe,Quote escaping,23,3,5,0.13,0.217
-Vulnerable,None,29,29,28,1.0,0.966
-Vulnerable,Quote escaping,10,10,10,1.0,1.0
-Vulnerable,Regex validation,28,28,28,1.0,1.0
-Vulnerable,Special-char filter,56,54,50,0.964,0.893
-Vulnerable,Email filter,57,41,28,0.719,0.491
+TrueLabel,Mechanism,n,A_clean_correct,A_clean_rate,A_hinted_correct,A_hinted_rate,B_clean_correct,B_clean_rate,B_hinted_correct,B_hinted_rate,C_clean_correct,C_clean_rate,C_hinted_correct,C_hinted_rate,D_clean_correct,D_clean_rate,D_hinted_correct,D_hinted_rate,E_clean_correct,E_clean_rate,E_hinted_correct,E_hinted_rate
+Safe,Quote escaping,25,3,0.12,13,0.52,1,0.04,12,0.48,6,0.24,10,0.4,3,0.12,14,0.56,5,0.2,14,0.56
+Safe,HTML escaping,13,3,0.231,9,0.692,3,0.231,9,0.692,2,0.154,5,0.385,3,0.231,11,0.846,3,0.231,5,0.385
+Safe,Regex replacement,16,5,0.312,15,0.938,6,0.375,16,1.0,8,0.5,14,0.875,9,0.562,15,0.938,9,0.562,16,1.0
+Safe,Regex validation,19,14,0.737,19,1.0,16,0.842,19,1.0,15,0.789,19,1.0,16,0.842,19,1.0,16,0.842,19,1.0
+Safe,Type coercion,86,81,0.942,86,1.0,81,0.942,86,1.0,81,0.942,86,1.0,81,0.942,86,1.0,80,0.93,86,1.0
+Safe,Whitelist,19,18,0.947,19,1.0,18,0.947,19,1.0,18,0.947,19,1.0,18,0.947,19,1.0,18,0.947,19,1.0
+Safe,No sanitiser,2,2,1.0,2,1.0,2,1.0,2,1.0,2,1.0,2,1.0,2,1.0,2,1.0,2,1.0,2,1.0
+Vulnerable,Email filter,57,41,0.719,25,0.439,38,0.667,25,0.439,30,0.526,19,0.333,31,0.544,19,0.333,28,0.491,19,0.333
+Vulnerable,Special-char filter,56,54,0.964,24,0.429,52,0.929,19,0.339,51,0.911,47,0.839,43,0.768,10,0.179,50,0.893,30,0.536
+Vulnerable,No sanitiser,29,29,1.0,26,0.897,28,0.966,25,0.862,28,0.966,28,0.966,28,0.966,22,0.759,28,0.966,28,0.966
+Vulnerable,Quote escaping,10,10,1.0,10,1.0,10,1.0,10,1.0,10,1.0,10,1.0,10,1.0,10,1.0,10,1.0,10,1.0
+Vulnerable,Regex validation,28,28,1.0,19,0.679,28,1.0,19,0.679,28,1.0,26,0.929,28,1.0,18,0.643,28,1.0,26,0.929

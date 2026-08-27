@@ -3,11 +3,18 @@
 Coordinates are plain pixels so that everything can be dragged in the editor.
 Each figure is a separate file; each logical part is a separate shape.
 """
+import os
 from pathlib import Path
 import pandas as pd
 
-OUT = Path('/mnt/user-data/outputs/figures')
-SRC = Path('/mnt/user-data/outputs/revision')
+# Paths default to the repository layout, so that a fresh clone runs with
+#     python figures/make_figures.py
+# Set REPRO_DATA / REPRO_FIGS to run against another location, for instance a
+# Google Drive working directory in Colab.
+_HERE = Path(__file__).resolve().parent
+OUT = Path(os.environ.get('REPRO_FIGS', _HERE))
+SRC = Path(os.environ.get('REPRO_DATA', _HERE.parent / 'data'))
+OUT.mkdir(exist_ok=True, parents=True)
 
 BLUE, ORANGE, GREEN, GREY = '#0072B2', '#D55E00', '#009E73', '#666666'
 FONT = 'Times New Roman'
@@ -169,13 +176,15 @@ def figure1():
 
     (OUT / 'Figure1_capability_threshold.drawio').write_text(
         wrap(c, 'Figure1_capability_threshold', 1000, 500))
-    print('  Figure1_capability_threshold.drawio')
+    print('  Figure1_capability_threshold.drawio  (manuscript FIGURE 1)')
 
 
 # ==================================================================== FIG 2
 def figure2():
-    t = pd.read_csv(SRC / 'TABLE4_gpt55_by_sanitizer_mechanism.csv')
-    s = t[t.TrueLabel == 'Safe'].sort_values('A_rate', ascending=False)
+    t = pd.read_csv(SRC / 'TABLE4_gpt55_by_sanitizer_mechanism.csv',
+                    keep_default_na=False, na_values=[''])
+    s = t[(t.TrueLabel == 'Safe') & (t.Mechanism != 'No sanitiser')]
+    s = s.sort_values('A_clean_rate', ascending=False)
     c = []
 
     X0, Y0, PW = 250, 80, 420
@@ -195,96 +204,131 @@ def figure2():
 
     for i, (_, r) in enumerate(s.iterrows()):
         y = Y0 + i * (BAR + GAP)
-        typeish = r.Mechanism in ('Type coercion', 'Whitelist')
-        col = GREEN if typeish else ORANGE
-        c.append(rect(X0, y, r.A_rate * PW, BAR, col))
+        if r.Mechanism in ('Type coercion', 'Whitelist'):
+            col = GREEN
+        elif r.Mechanism in ('Regex replacement', 'HTML escaping',
+                             'Quote escaping'):
+            col = ORANGE
+        else:
+            col = GREY
+        c.append(rect(X0, y, r.A_clean_rate * PW, BAR, col))
         c.append(text(X0 - 210, y + 3, 200, 20, r.Mechanism, 11, 'right'))
-        c.append(text(X0 + r.A_rate * PW + 8, y + 3, 130, 20,
-                      f'{r.A_rate:.2f}   (n = {int(r.n)})', 10, 'left'))
+        c.append(text(X0 + r.A_clean_rate * PW + 8, y + 3, 130, 20,
+                      f'{r.A_clean_rate:.2f}   (n = {int(r.n)})', 10, 'left'))
 
     ly = Y0 + len(s) * (BAR + GAP) + 56
     c.append(rect(X0, ly, 14, 14, GREEN))
     c.append(text(X0 + 20, ly - 2, 200, 18, 'Type-level guarantee', 10, 'left'))
-    c.append(rect(X0 + 210, ly, 14, 14, ORANGE))
-    c.append(text(X0 + 230, ly - 2, 200, 18, 'Escaping or filtering', 10, 'left'))
-    c.append(text(X0 - 210, ly + 26, 640, 34,
-                  'Aggregated: 94.3% for type-level mechanisms against 21.2% for '
-                  'escaping\n(Fisher exact test, odds ratio 61.5, p = 3.5 × 10⁻²¹)',
-                  10, 'left', color='#666666'))
+    c.append(rect(X0 + 190, ly, 14, 14, ORANGE))
+    c.append(text(X0 + 210, ly - 2, 200, 18, 'Escaping or filtering', 10, 'left'))
+    c.append(rect(X0 + 370, ly, 14, 14, GREY))
+    c.append(text(X0 + 390, ly - 2, 200, 18, 'Neither group', 10, 'left'))
+    # The aggregate figures live in the manuscript caption, not in the image:
+    # duplicating them here means a corrected number has to be changed twice,
+    # which is how a stale odds ratio survived an earlier revision.
 
-    (OUT / 'Figure2_sanitisation_mechanism.drawio').write_text(
-        wrap(c, 'Figure2_sanitisation_mechanism', 800, 480))
-    print('  Figure2_sanitisation_mechanism.drawio')
+    (OUT / 'Figure3_sanitisation_mechanism.drawio').write_text(
+        wrap(c, 'Figure3_sanitisation_mechanism', 800, 450))
+    print('  Figure3_sanitisation_mechanism.drawio  (manuscript FIGURE 3)')
 
 
 # ==================================================================== FIG 3
+# Output file is named for the manuscript's numbering (FIGURE 2), not this
+# function's position in the script. The two disagreed in earlier versions and
+# it caused a stale value to survive a correction round.
 def figure3():
+    """Component attribution on GPT-5.5 — manuscript FIGURE 2."""
+    t3 = pd.read_csv(SRC / 'TABLE3_component_attribution.csv')
+    v = t3[t3.Stratum == 'Vulnerable'].set_index('Contrast')
+    sa = t3[t3.Stratum == 'Safe'].set_index('Contrast')
+
     c = []
     Y0, PH = 90, 280
     ybot = Y0 + PH
 
-    # ---- panel (a) ------------------------------------------------------
-    X0, PW = 90, 300
-    sy = lambda v: ybot - v / 190 * PH
-    c.append(text(X0 - 30, Y0 - 45, 320, 22, '(a)  Accuracy by stratum', 13,
-                  'left', bold=True))
+    # ---- panel (a): each component against the shared baseline ----------
+    X0, PW = 90, 340
+    AMAX = 30
+    sy = lambda val: ybot - val / AMAX * PH
+    c.append(text(X0 - 30, Y0 - 62, 400, 22,
+                  '(a)  Each component against the baseline', 13, 'left', bold=True))
+    c.append(text(X0 - 30, Y0 - 42, 400, 18,
+                  'vulnerable samples (n = 180)', 11, 'left', color=GREY))
     c.append(line(X0, ybot, X0 + PW, ybot, sw=1.5))
     c.append(line(X0, ybot, X0, Y0, sw=1.5))
-    for v in [0, 50, 100, 150]:
-        c.append(line(X0 - 5, sy(v), X0, sy(v)))
-        c.append(text(X0 - 52, sy(v) - 9, 45, 18, str(v), 10, 'right'))
-        if v:
-            c.append(line(X0, sy(v), X0 + PW, sy(v), '#DDDDDD', 1))
-    c.append(text(X0 - 100, Y0 + PH / 2 - 10, 150, 20, 'Correct predictions',
+    for val in [0, 10, 20, 30]:
+        c.append(line(X0 - 5, sy(val), X0, sy(val)))
+        c.append(text(X0 - 52, sy(val) - 9, 45, 18, str(val), 10, 'right'))
+        if val:
+            c.append(line(X0, sy(val), X0 + PW, sy(val), '#DDDDDD', 1))
+    c.append(text(X0 - 105, Y0 + PH / 2 - 10, 160, 20, 'Discordant samples',
                   12, rotate=270))
 
-    for k, (lab, A, E, p) in enumerate([('Vulnerable  (n = 180)', 162, 144, 'p = 0.0003'),
-                                        ('Safe  (n = 180)', 126, 133, 'p = 0.065')]):
-        gx = X0 + PW * (k + 0.5) / 2
-        for j, (v, col) in enumerate([(A, BLUE), (E, ORANGE)]):
-            bx = gx - 46 + j * 46
-            c.append(rect(bx, sy(v), 40, ybot - sy(v), col))
-            c.append(text(bx - 10, sy(v) - 20, 60, 18, str(v), 10))
-        c.append(text(gx - 90, ybot + 8, 180, 18, lab, 11))
-        c.append(text(gx - 60, sy(max(A, E)) - 42, 120, 18, p, 10,
-                      color='#666666'))
+    comps = [('A_clean vs B_clean', 'Persona'),
+             ('A_clean vs C_clean', 'Taint'),
+             ('A_clean vs D_clean', 'CoT'),
+             ('A_clean vs E_clean', 'All three')]
+    for k, (key, lab) in enumerate(comps):
+        row = v.loc[key]
+        lost, gained, sig = int(row.A_only), int(row.B_only), bool(row.sig_holm)
+        gx = X0 + PW * (k + 0.5) / len(comps)
+        for j, (val, col) in enumerate([(lost, BLUE), (gained, ORANGE)]):
+            bx = gx - 38 + j * 38
+            c.append(rect(bx, sy(val), 32, ybot - sy(val), col))
+            c.append(text(bx - 14, sy(val) - 20, 60, 18, str(val), 10))
+        c.append(text(gx - 55, ybot + 8, 110, 18, lab, 11))
+        if sig:
+            c.append(text(gx - 30, sy(max(lost, gained)) - 42, 60, 20, '*', 15, bold=True))
 
-    # ---- panel (b) ------------------------------------------------------
-    X1, PW1 = 560, 340
-    sy2 = lambda v: ybot - v / 36 * PH
-    c.append(text(X1 - 30, Y0 - 45, 340, 22, '(b)  Discordant pairs', 13,
-                  'left', bold=True))
+    # ---- panel (b): category naming inside every structural variant ------
+    X1, PW1 = 600, 340
+    BMAX = 70
+    sy2 = lambda val: ybot - val / BMAX * PH
+    c.append(text(X1 - 30, Y0 - 62, 400, 22,
+                  '(b)  Cost of naming the category', 13, 'left', bold=True))
+    c.append(text(X1 - 30, Y0 - 42, 400, 18,
+                  'every contrast significant after Holm correction', 11, 'left',
+                  color=GREY))
     c.append(line(X1, ybot, X1 + PW1, ybot, sw=1.5))
     c.append(line(X1, ybot, X1, Y0, sw=1.5))
-    for v in [0, 10, 20, 30]:
-        c.append(line(X1 - 5, sy2(v), X1, sy2(v)))
-        c.append(text(X1 - 52, sy2(v) - 9, 45, 18, str(v), 10, 'right'))
-        if v:
-            c.append(line(X1, sy2(v), X1 + PW1, sy2(v), '#DDDDDD', 1))
+    for val in [0, 20, 40, 60]:
+        c.append(line(X1 - 5, sy2(val), X1, sy2(val)))
+        c.append(text(X1 - 52, sy2(val) - 9, 45, 18, str(val), 10, 'right'))
+        if val:
+            c.append(line(X1, sy2(val), X1 + PW1, sy2(val), '#DDDDDD', 1))
     c.append(text(X1 - 105, Y0 + PH / 2 - 10, 160, 20, 'Discordant samples',
                   12, rotate=270))
 
-    for k, (lab, a, e) in enumerate([('Vulnerable\nsamples', 21, 3),
-                                     ('Safe\nsamples', 2, 9),
-                                     ('Verdict shift\n(V to S)', 30, 5)]):
-        gx = X1 + PW1 * (k + 0.5) / 3
-        for j, (v, col) in enumerate([(a, BLUE), (e, ORANGE)]):
-            bx = gx - 42 + j * 42
-            c.append(rect(bx, sy2(v), 36, ybot - sy2(v), col))
-            c.append(text(bx - 12, sy2(v) - 20, 60, 18, str(v), 10))
-        c.append(text(gx - 70, ybot + 8, 140, 34, lab, 11))
+    for k, var in enumerate('ABCDE'):
+        key = f'{var}_clean vs {var}_hinted'
+        missed = int(v.loc[key].A_only)      # vulnerabilities lost to naming
+        avoided = int(sa.loc[key].B_only)    # false positives naming avoids
+        gx = X1 + PW1 * (k + 0.5) / 5
+        for j, (val, col) in enumerate([(missed, BLUE), (avoided, ORANGE)]):
+            bx = gx - 32 + j * 32
+            c.append(rect(bx, sy2(val), 27, ybot - sy2(val), col))
+            c.append(text(bx - 16, sy2(val) - 19, 60, 18, str(val), 9))
+        c.append(text(gx - 40, ybot + 8, 80, 18, var, 11))
+    c.append(text(X1, ybot + 30, PW1, 18, 'Structural variant', 11))
 
-    # ---- legend ---------------------------------------------------------
-    lx, ly = X1 + 20, Y0 + 4
+    # ---- legends ---------------------------------------------------------
+    lx, ly = X0 + 6, Y0 + 4
     c.append(rect(lx - 6, ly - 6, 250, 52, '#FFFFFF', '#CCCCCC', 1))
     c.append(rect(lx + 4, ly + 6, 14, 14, BLUE))
-    c.append(text(lx + 24, ly + 4, 220, 18, 'Baseline (A)', 10, 'left'))
+    c.append(text(lx + 24, ly + 4, 220, 18, 'Detections lost', 10, 'left'))
     c.append(rect(lx + 4, ly + 26, 14, 14, ORANGE))
-    c.append(text(lx + 24, ly + 24, 220, 18, 'Full Framework (E)', 10, 'left'))
+    c.append(text(lx + 24, ly + 24, 220, 18, 'Detections gained', 10, 'left'))
 
-    (OUT / 'Figure3_tradeoff.drawio').write_text(
-        wrap(c, 'Figure3_tradeoff', 1000, 480))
-    print('  Figure3_tradeoff.drawio')
+    lx2 = X1 + 84
+    c.append(rect(lx2 - 6, ly - 6, 262, 52, '#FFFFFF', '#CCCCCC', 1))
+    c.append(rect(lx2 + 4, ly + 6, 14, 14, BLUE))
+    c.append(text(lx2 + 24, ly + 4, 232, 18, 'Vulnerabilities missed', 10, 'left'))
+    c.append(rect(lx2 + 4, ly + 26, 14, 14, ORANGE))
+    c.append(text(lx2 + 24, ly + 24, 232, 18, 'False positives avoided', 10, 'left'))
+
+    (OUT / 'Figure2_component_attribution.drawio').write_text(
+        wrap(c, 'Figure2_component_attribution', 1000, 460))
+    print('  Figure2_component_attribution.drawio   (manuscript FIGURE 2)')
 
 
 if __name__ == '__main__':
